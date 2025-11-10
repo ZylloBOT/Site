@@ -298,6 +298,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 2rem;
+            margin-bottom: 4rem;
         }
         
         .stat-card {
@@ -322,6 +323,99 @@
         
         .stat-label {
             font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        /* Estilos do Gráfico Circular */
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+        
+        .chart-wrapper {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+        
+        .chart-legend {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+        
+        .donut-chart {
+            width: 100%;
+            height: 300px;
+            position: relative;
+        }
+        
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        
+        .chart-circle {
+            fill: none;
+            stroke-width: 15;
+            stroke-linecap: round;
+            transition: all 1s ease;
+            opacity: 0;
+        }
+        
+        .chart-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .chart-total {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .chart-label {
+            font-size: 1rem;
+            color: var(--dark-color);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .legend-item:hover {
+            background-color: rgba(0,0,0,0.05);
+            transform: translateX(5px);
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 1rem;
+        }
+        
+        .legend-text {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .legend-percentage {
+            font-weight: bold;
             color: var(--primary-color);
         }
         
@@ -489,6 +583,13 @@
                 transform: translateY(0px);
             }
         }
+
+        @keyframes drawCircle {
+            to {
+                stroke-dashoffset: 0;
+                opacity: 1;
+            }
+        }
         
         /* Responsividade */
         @media (max-width: 768px) {
@@ -526,6 +627,10 @@
             }
             
             .demo-buttons {
+                flex-direction: column;
+            }
+
+            .chart-container {
                 flex-direction: column;
             }
         }
@@ -663,6 +768,66 @@
                 <div class="stat-card animate-on-scroll">
                     <div class="stat-number" id="satisfaction-count">98%</div>
                     <div class="stat-label">Taxa de Satisfação</div>
+                </div>
+            </div>
+
+            <!-- Gráfico Circular de Linguagens -->
+            <h2 class="section-title">Tecnologias Utilizadas</h2>
+            <div class="chart-container animate-on-scroll">
+                <div class="chart-wrapper">
+                    <div class="donut-chart">
+                        <svg class="chart-svg" viewBox="0 0 100 100">
+                            <!-- Círculos serão adicionados via JavaScript -->
+                        </svg>
+                        <div class="chart-center">
+                            <div class="chart-total">100%</div>
+                            <div class="chart-label">Tecnologias</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #FFD600;"></div>
+                        <div class="legend-text">
+                            <span>JavaScript</span>
+                            <span class="legend-percentage">64%</span>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #FF9800;"></div>
+                        <div class="legend-text">
+                            <span>HTML</span>
+                            <span class="legend-percentage">15%</span>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #2196F3;"></div>
+                        <div class="legend-text">
+                            <span>CSS</span>
+                            <span class="legend-percentage">10%</span>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #4CAF50;"></div>
+                        <div class="legend-text">
+                            <span>Batch Script</span>
+                            <span class="legend-percentage">5%</span>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #9C27B0;"></div>
+                        <div class="legend-text">
+                            <span>JSON</span>
+                            <span class="legend-percentage">5%</span>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #9E9E9E;"></div>
+                        <div class="legend-text">
+                            <span>Outros</span>
+                            <span class="legend-percentage">1%</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -814,6 +979,59 @@
         }, { threshold: 0.5 });
 
         statsObserver.observe(document.querySelector('.stats'));
+
+        // Gráfico Circular de Linguagens
+        function createDonutChart() {
+            const data = [
+                { label: 'JavaScript', percentage: 64, color: '#FFD600' },
+                { label: 'HTML', percentage: 15, color: '#FF9800' },
+                { label: 'CSS', percentage: 10, color: '#2196F3' },
+                { label: 'Batch Script', percentage: 5, color: '#4CAF50' },
+                { label: 'JSON', percentage: 5, color: '#9C27B0' },
+                { label: 'Outros', percentage: 1, color: '#9E9E9E' }
+            ];
+
+            const svg = document.querySelector('.chart-svg');
+            const radius = 40;
+            const circumference = 2 * Math.PI * radius;
+            let offset = circumference;
+
+            data.forEach((item, index) => {
+                const segmentLength = (item.percentage / 100) * circumference;
+                offset -= segmentLength;
+
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', '50');
+                circle.setAttribute('cy', '50');
+                circle.setAttribute('r', radius);
+                circle.setAttribute('stroke', item.color);
+                circle.setAttribute('stroke-width', '10');
+                circle.setAttribute('fill', 'none');
+                circle.setAttribute('stroke-dasharray', `${segmentLength} ${circumference}`);
+                circle.setAttribute('stroke-dashoffset', offset);
+                circle.classList.add('chart-circle');
+
+                // Animação
+                setTimeout(() => {
+                    circle.style.animation = `drawCircle 1.5s ease-out forwards`;
+                    circle.style.animationDelay = `${index * 0.3}s`;
+                }, 100);
+
+                svg.appendChild(circle);
+            });
+        }
+
+        // Inicializar gráfico quando a seção estiver visível
+        const chartObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    createDonutChart();
+                    chartObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        chartObserver.observe(document.querySelector('.chart-container'));
     </script>
 </body>
 </html>
