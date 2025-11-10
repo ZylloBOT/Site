@@ -426,6 +426,16 @@
             text-align: center;
         }
         
+        /* CORREÇÃO: Cor da palavra "Demonstração" */
+        .demo .section-title {
+            color: #ffffff !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .demo .section-title::after {
+            background-color: #ffffff;
+        }
+        
         .demo-container {
             max-width: 600px;
             margin: 0 auto;
@@ -632,6 +642,15 @@
 
             .chart-container {
                 flex-direction: column;
+            }
+            
+            /* Melhorias para mobile */
+            .stat-number {
+                font-size: 2.5rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
             }
         }
         
@@ -889,13 +908,13 @@
             document.querySelector('nav ul').classList.toggle('active');
         });
 
-        // Animação de scroll
+        // Animação de scroll - CORREÇÃO: Melhor compatibilidade mobile
         const animateOnScroll = function() {
             const elements = document.querySelectorAll('.animate-on-scroll');
             
             elements.forEach(element => {
                 const elementPosition = element.getBoundingClientRect().top;
-                const screenPosition = window.innerHeight / 1.3;
+                const screenPosition = window.innerHeight / 1.2; // Ajustado para mobile
                 
                 if (elementPosition < screenPosition) {
                     element.classList.add('animated');
@@ -903,8 +922,14 @@
             });
         };
 
+        // CORREÇÃO: Inicializar animações ao carregar e melhor performance no mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            animateOnScroll();
+            // Forçar uma verificação inicial
+            setTimeout(animateOnScroll, 100);
+        });
+
         window.addEventListener('scroll', animateOnScroll);
-        window.addEventListener('load', animateOnScroll);
 
         // Demonstração do bot
         const connectBtn = document.getElementById('connect-btn');
@@ -916,12 +941,17 @@
         let messagesCount = 0;
         let uptimeSeconds = 0;
         let uptimeInterval;
+        let messageInterval;
         
         connectBtn.addEventListener('click', function() {
             statusText.textContent = 'Conectado';
             statusText.style.color = '#2ecc71';
             connectBtn.disabled = true;
             disconnectBtn.disabled = false;
+            
+            // CORREÇÃO: Limpar intervalos anteriores para evitar múltiplas execuções
+            clearInterval(uptimeInterval);
+            clearInterval(messageInterval);
             
             // Iniciar contador de uptime
             uptimeInterval = setInterval(function() {
@@ -933,7 +963,7 @@
             }, 1000);
             
             // Simular mensagens recebidas
-            setInterval(function() {
+            messageInterval = setInterval(function() {
                 if (connectBtn.disabled) {
                     messagesCount++;
                     messagesText.textContent = messagesCount;
@@ -947,36 +977,57 @@
             connectBtn.disabled = false;
             disconnectBtn.disabled = true;
             
-            // Parar contador de uptime
+            // Parar contadores
             clearInterval(uptimeInterval);
+            clearInterval(messageInterval);
         });
 
-        // Animação de contagem para estatísticas
+        // CORREÇÃO: Função de animação de contagem melhorada para mobile
         const animateCount = function(element, target, duration) {
             let start = 0;
-            const increment = target / (duration / 16); // 60fps
-            const timer = setInterval(function() {
-                start += increment;
-                if (start >= target) {
-                    element.textContent = target;
-                    clearInterval(timer);
+            const increment = target / (duration / 16);
+            let lastUpdate = Date.now();
+            
+            const updateCount = function() {
+                const now = Date.now();
+                const delta = now - lastUpdate;
+                
+                if (delta >= 16) { // Limitar a ~60fps
+                    start += increment * (delta / 16);
+                    lastUpdate = now;
+                    
+                    if (start >= target) {
+                        element.textContent = target;
+                        return;
+                    } else {
+                        element.textContent = Math.floor(start);
+                        requestAnimationFrame(updateCount);
+                    }
                 } else {
-                    element.textContent = Math.floor(start);
+                    requestAnimationFrame(updateCount);
                 }
-            }, 16);
+            };
+            
+            requestAnimationFrame(updateCount);
         };
 
-        // Iniciar animações de contagem quando as estatísticas estiverem visíveis
+        // CORREÇÃO: Observer melhorado para mobile
         const statsObserver = new IntersectionObserver(function(entries) {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    animateCount(document.getElementById('users-count'), 12, 2000);
-                    animateCount(document.getElementById('messages-count'), 4200, 2000);
-                    animateCount(document.getElementById('uptime-count'), 1247, 2000);
+                    // Usar setTimeout para melhor performance no mobile
+                    setTimeout(() => {
+                        animateCount(document.getElementById('users-count'), 12, 2000);
+                        animateCount(document.getElementById('messages-count'), 4200, 2000);
+                        animateCount(document.getElementById('uptime-count'), 1247, 2000);
+                    }, 100);
                     statsObserver.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.5 });
+        }, { 
+            threshold: 0.3, // Reduzido para mobile
+            rootMargin: '0px 0px -50px 0px'
+        });
 
         statsObserver.observe(document.querySelector('.stats'));
 
@@ -995,6 +1046,9 @@
             const radius = 40;
             const circumference = 2 * Math.PI * radius;
             let offset = circumference;
+
+            // Limpar SVG antes de adicionar novos elementos
+            svg.innerHTML = '';
 
             data.forEach((item, index) => {
                 const segmentLength = (item.percentage / 100) * circumference;
@@ -1029,7 +1083,7 @@
                     chartObserver.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.5 });
+        }, { threshold: 0.3 }); // Reduzido para mobile
 
         chartObserver.observe(document.querySelector('.chart-container'));
     </script>
